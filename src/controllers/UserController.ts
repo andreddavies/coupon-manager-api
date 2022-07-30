@@ -75,8 +75,9 @@ class UserController {
     const { id } = req.params;
     const user = await User.findById(id, "-password");
 
-    if (user) return res.json({ user });
-    else throw new BadRequestError("Usuário não encontrado!");
+    if (!user) throw new BadRequestError("Usuário não encontrado!");
+
+    return res.json({ user });
   }
 
   async update(req: Request, res: Response): Promise<UserControllerResponse> {
@@ -108,9 +109,10 @@ class UserController {
     const { id } = req.params;
     const deleteUser = await User.findByIdAndDelete(id);
 
-    if (deleteUser)
-      return res.json({ message: "Usuário foi removido com sucesso!" });
-    else throw new BadRequestError("Não foi possível remover o usuário!");
+    if (!deleteUser)
+      throw new BadRequestError("Não foi possível remover o usuário!");
+
+    return res.json({ message: "Usuário foi removido com sucesso!" });
   }
 }
 
