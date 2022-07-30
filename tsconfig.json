@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "lib": ["ES6"],
+      "allowJs": true,
+      "target": "ES2017",
+      "removeComments": true,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "outDir": "./dist",
+      "moduleResolution": "node",
+      "baseUrl": ".",
+      "paths": {
+        "@app": ["./src/app.ts"],
+        "@routes/*": ["./src/routes/*"],
+        "@schemas/*": ["src/schemas/*"],
+        "@helpers/*": ["./src/helpers/*"],
+        "@config": ["src/config/index.ts"],
+        "@middlewares/*": ["src/middlewares/*"],
+        "@controllers/*": ["./src/controllers/*"]
+      },
+      "incremental": true
+    },
+    "include": ["**/*.ts", "**/*.js"],
+    "exclude": ["node_modules", "dist"]
+  }
+  
