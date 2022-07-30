@@ -9,5 +9,7 @@ router.get("/api", (req: Request, res: Response) => {
 });
 
 router.get("/api/user/:id", UserController.findOne);
+router.patch("/api/user/:id", UserController.update);
+router.delete("/api/user/:id", UserController.delete);
 
 export default router;
