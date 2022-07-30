@@ -13,6 +13,7 @@ interface IDB {
 interface IConfig {
   app: IApp;
   db: IDB;
+  secret: string;
 }
 
 const config: IConfig = {
@@ -26,6 +27,7 @@ const config: IConfig = {
     dbPort: process.env.DB_PORT,
     dbName: process.env.DB_NAME,
   },
+  secret: process.env.SECRET,
 };
 
 export default config;
