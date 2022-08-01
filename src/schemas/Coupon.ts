@@ -1,10 +1,10 @@
 import { Schema, model, Document } from "mongoose";
 
 interface ICoupon extends Document {
-  id: string;
+  id?: string;
   link: string;
-  code: string;
   logo: string;
+  code: string;
   due_date: Date;
   description: string;
   company_name: string;
@@ -15,14 +15,14 @@ interface ICoupon extends Document {
 const CouponSchema = new Schema(
   {
     id: String,
-    link: String,
-    code: String,
-    logo: String,
-    due_date: Date,
-    status: String,
-    description: String,
-    company_name: String,
-    discount_percentage: Number,
+    link: { type: String, required: true },
+    logo: { type: String, required: true },
+    due_date: { type: Date, required: true },
+    status: { type: String, required: true },
+    description: { type: String, required: true },
+    company_name: { type: String, required: true },
+    discount_percentage: { type: Number, required: true },
+    code: { type: String, unique: true, required: true },
   },
   {
     timestamps: true,
