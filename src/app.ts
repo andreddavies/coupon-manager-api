@@ -7,6 +7,7 @@ import "./database";
 import router from "@routes/router";
 
 const app: express.Application = express();
+app.use(express.static("public"));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
