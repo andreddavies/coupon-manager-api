@@ -1,28 +1,19 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { MongooseError } from "mongoose";
 
 import config from "@config";
 import User from "@schemas/User";
 import { ApiError, BadRequestError } from "@helpers/api-errors";
 
-interface IUserData {
-  name: string;
-  email: string;
-  password: string;
-}
-
 type UserControllerResponse = Response | ApiError;
 
 class UserController {
   async create(req: Request, res: Response): Promise<UserControllerResponse> {
-    const { name, email, password }: IUserData = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password)
-      throw new BadRequestError("Todos os campos são obrigatórios!");
-
-    const user = await User.findOne({ email });
-    if (user) throw new BadRequestError("Este e-mail já está sendo utilizado!");
+    if (!name) throw new BadRequestError("O campo nome é obrigatório");
 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -37,38 +28,34 @@ class UserController {
 
         return res.json({ user: finalUser });
       })
-      .catch((err) => {
-        throw new ApiError(err);
+      .catch((err: MongooseError) => {
+        throw new ApiError(400, err.message);
       });
   }
 
   async login(req: Request, res: Response): Promise<UserControllerResponse> {
     const { email, password } = req.body;
 
-    if (!email || !password)
-      throw new BadRequestError("Todos os campos são obrigatórios!");
-
     const user = await User.findOne({ email });
     if (!user) throw new BadRequestError("Usuário não existe!");
 
     const checkPassword = await bcrypt.compare(password, user.password);
     if (!checkPassword) throw new BadRequestError("Senha inválida");
-    else {
-      const { secret } = config;
-      const token = jwt.sign(
-        {
-          id: user._id,
-        },
-        secret
-      );
 
-      return res.json({
+    const { secret } = config;
+    const token = jwt.sign(
+      {
         id: user._id,
-        name: user.name,
-        email: user.email,
-        token,
-      });
-    }
+      },
+      secret
+    );
+
+    return res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      token,
+    });
   }
 
   async findOne(req: Request, res: Response): Promise<UserControllerResponse> {
@@ -82,11 +69,11 @@ class UserController {
 
   async update(req: Request, res: Response): Promise<UserControllerResponse> {
     const { id } = req.params;
-    const { email, name }: IUserData = req.body;
+    const { email, name } = req.body;
     const user = await User.findByIdAndUpdate(id, { email, name });
 
     if (user) {
-      const { password }: IUserData = req.body;
+      const { password } = req.body;
 
       if (password) {
         const salt = await bcrypt.genSalt(12);
@@ -99,7 +86,7 @@ class UserController {
             return res.json({ user: returnData });
           })
           .catch((err) => {
-            throw new ApiError(err);
+            throw new ApiError(500, err);
           });
       } else return res.json({ user });
     } else throw new BadRequestError("Não foi possível atualizar o usuário!");
@@ -109,8 +96,7 @@ class UserController {
     const { id } = req.params;
     const deleteUser = await User.findByIdAndDelete(id);
 
-    if (!deleteUser)
-      throw new BadRequestError("Não foi possível remover o usuário!");
+    if (!deleteUser) throw new ApiError();
 
     return res.json({ message: "Usuário foi removido com sucesso!" });
   }
