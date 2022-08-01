@@ -1,24 +1,28 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 
-const router = Router();
+import { authMiddleware } from "@middlewares/auth";
+import { imageUploaderMiddleware } from "@middlewares/imageUploader";
 
 import UserController from "@controllers/UserController";
 import CouponController from "@controllers/CouponController";
 
-router.get("/api", (req: Request, res: Response) => {
-  res.send("Hello world!");
-});
+const router = Router();
 
-router.get("/api/user/:id", UserController.findOne);
+router.get("/api/user/:id", authMiddleware, UserController.findOne);
 router.post("/api/user/signup", UserController.create);
 router.post("/api/user/signin", UserController.login);
-router.patch("/api/user/:id", UserController.update);
-router.delete("/api/user/:id", UserController.delete);
+router.patch("/api/user/:id", authMiddleware, UserController.update);
+router.delete("/api/user/:id", authMiddleware, UserController.delete);
 
 router.get("/api/coupon", CouponController.list);
-router.get("/api/coupon/:id", CouponController.getCoupon);
-router.post("/api/coupon", CouponController.create);
-router.patch("/api/coupon/:id", CouponController.update);
-router.delete("/api/coupon/:id", CouponController.delete);
+router.get("/api/coupon/:id", authMiddleware, CouponController.getCoupon);
+router.post(
+  "/api/coupon",
+  authMiddleware,
+  imageUploaderMiddleware.single("logo"),
+  CouponController.create
+);
+router.patch("/api/coupon/:id", authMiddleware, CouponController.update);
+router.delete("/api/coupon/:id", authMiddleware, CouponController.delete);
 
 export default router;
