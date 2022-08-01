@@ -1,7 +1,7 @@
 export class ApiError extends Error {
   public readonly statusCode: number;
 
-  constructor(message?: string, statusCode?: number) {
+  constructor(statusCode?: number, message?: string) {
     super(message);
     this.statusCode = statusCode;
   }
@@ -9,18 +9,18 @@ export class ApiError extends Error {
 
 export class BadRequestError extends ApiError {
   constructor(message?: string) {
-    super(message, 400);
+    super(400, message);
   }
 }
 
 export class UnauthorizedError extends ApiError {
   constructor(message?: string) {
-    super(message, 401);
+    super(401, message);
   }
 }
 
 export class NotFoundError extends ApiError {
   constructor(message?: string) {
-    super(message, 404);
+    super(404, message);
   }
 }
