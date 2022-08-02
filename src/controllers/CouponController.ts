@@ -74,17 +74,39 @@ class CouponController {
   }
 
   async update(req: Request, res: Response): Promise<CouponControllerResponse> {
+    const { file } = req;
     const { id } = req.params;
     const data: ICoupon = req.body;
-    const coupon = await Coupon.findByIdAndUpdate(id, { ...data })
-      .then((res) => {
-        return res;
-      })
-      .catch((err: MongooseError) => {
-        throw new ApiError(400, err.message);
-      });
 
-    return res.json({ coupon });
+    if (file) {
+      const coupon = await Coupon.findByIdAndUpdate(id, {
+        ...data,
+        logo: file.path.split("public/")[1],
+      })
+        .then((res) => {
+          return res;
+        })
+        .catch((err: MongooseError) => {
+          throw new ApiError(400, err.message);
+        });
+
+      return res.json({ coupon });
+    } else {
+      const coupon = await Coupon.findById(id)
+        .then(async (res) => {
+          const updated = await Coupon.findByIdAndUpdate(id, {
+            ...data,
+            logo: res.logo,
+          });
+
+          return updated;
+        })
+        .catch((err: MongooseError) => {
+          throw new ApiError(400, err.message);
+        });
+
+      return res.json({ coupon });
+    }
   }
 
   async delete(req: Request, res: Response): Promise<CouponControllerResponse> {
