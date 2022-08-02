@@ -100,7 +100,7 @@ class UserController {
           });
       } else {
         const returnUser = await User.findById(id);
-        console.log(returnUser);
+
         return res.json({ user: returnUser });
       }
     } else throw new BadRequestError("Não foi possível atualizar o usuário!");
