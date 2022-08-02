@@ -22,7 +22,12 @@ router.post(
   imageUploaderMiddleware.single("logo"),
   CouponController.create
 );
-router.patch("/api/coupon/:id", authMiddleware, CouponController.update);
+router.patch(
+  "/api/coupon/:id",
+  authMiddleware,
+  imageUploaderMiddleware.single("logo"),
+  CouponController.update
+);
 router.delete("/api/coupon/:id", authMiddleware, CouponController.delete);
 
 export default router;
