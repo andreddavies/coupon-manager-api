@@ -70,12 +70,22 @@ class UserController {
   async update(req: Request, res: Response): Promise<UserControllerResponse> {
     const { id } = req.params;
     const { email, name } = req.body;
-    const user = await User.findByIdAndUpdate(id, { email, name });
+    const user = await User.findById(id)
+      .then(async (res) => {
+        return await User.findByIdAndUpdate(id, {
+          email: !!email ? email : res.email,
+          name: !!name ? name : res.name,
+          password: res.password,
+        });
+      })
+      .catch((err) => {
+        return err;
+      });
 
     if (user) {
       const { password } = req.body;
 
-      if (password) {
+      if (!!password) {
         const salt = await bcrypt.genSalt(12);
         const passwordHash = await bcrypt.hash(password, salt);
 
@@ -88,7 +98,11 @@ class UserController {
           .catch((err) => {
             throw new ApiError(500, err);
           });
-      } else return res.json({ user });
+      } else {
+        const returnUser = await User.findById(id);
+        console.log(returnUser);
+        return res.json({ user: returnUser });
+      }
     } else throw new BadRequestError("Não foi possível atualizar o usuário!");
   }
 
